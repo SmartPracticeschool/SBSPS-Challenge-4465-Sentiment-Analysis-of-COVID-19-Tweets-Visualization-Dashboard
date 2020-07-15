@@ -11,7 +11,7 @@ This Contains 2 different Modules
 the working of those modles are completly diffrent 
 Model 1 requires flask for visualization
 Model 2 requires IBM Watson for visualization 
-<h1 align="center">Introduction</h1>
+<h1 >Introduction</h1>
 <p>Our sentiment analysis model facilitates a better understanding of the nation's reaction towards this global pandemic. The dashboard generated will help the government and other institutions to get a hold of the current situation. Also, our predictive analysis of relevant #tags on Twitter will boost up businesses amidst the nationwide lockdown.</p>
 
 <h1> Purpose</h1>
