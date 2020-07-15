@@ -16,6 +16,8 @@ Model 2 requires IBM Watson for visualization
 
 <h1> Purpose</h1>
 <p>Our model aims to provide a better understanding of the public sentiments regarding the Covid-19 suitation and also provide a brief visualisation about their thoughts which can help the government to predict their reactions on the various laws adopted during the lockdown period. Our model aims to foster a positive attitude among the public regarding COVID-19 and help organisations respond in time.</p>
+<h1>Visualisation using ML Libraries</h1>
+<img src="
 
 <h1>Dynamic Visualisation of our dashboard</h1>
 <img src="e73e5229-1924-4e49-8c96-aa2f9a04efc8.jpg">
