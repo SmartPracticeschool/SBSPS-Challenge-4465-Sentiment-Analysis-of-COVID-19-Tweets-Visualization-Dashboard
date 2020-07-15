@@ -1,0 +1,454 @@
+<!DOCTYPE html>
+<html  lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+
+    <title>Flask App </title>
+
+    <!-- Bootstraps Java Scipts Links -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css" integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
+    <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+
+
+
+    <!-- JQuery links  -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+
+
+    <!--High CHART LIVE  -->
+    <script src="http://code.highcharts.com/highcharts.js"></script>
+    <script src="http://code.highcharts.com/highcharts-more.js"></script>
+    <script src="http://code.highcharts.com/modules/exporting.js"></script>
+
+    <!--Gauge  -->
+    <script type="text/javascript" src="http://pubnub.github.io/eon/lib/eon.js"></script>
+
+
+</head>
+
+<body>
+
+    <div class="jumbotron">
+        <h1 class="text-center text-white">COVID-19 SENTIMENT ANALYSIS</h1>
+    </div>
+    <br>
+    <br>
+
+    <div class="container-fluid">
+
+        <div class="row">
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2 class="sensor1"> Sensor : </h2>
+            </div>
+            <br>
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2 class="sensor2">Sensor :</h2>
+            </div>
+            <br>
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2 class="sensor5">Sensor :</h2>
+            </div>
+            <br>
+
+            <div class="col-5 jumbotron p-2 mx-1">
+                <h2 class="sensor4">Sensor :</h2>
+            </div>
+            <br>
+
+        </div>
+    </div>
+
+    <style>
+
+        .jumbotron{
+            widows: 100px;
+            height: 120px;
+            justify-content: center;
+        }
+
+        .row{
+            justify-content: center;
+        }
+
+
+    </style>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-temperature">
+
+            </div>
+        </div>
+    </div>
+<br>
+<br>
+<br>
+
+    <div class="container-fluid">
+        <!-- Example row of columns -->
+        <div class="row">
+            <div class="container-fluid" id="data-humidity">
+
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        var chartTemperatue;
+        var chartHumidity;
+
+        function requestData()
+        {
+            // Ajax call to get the Data from Flask
+            var requests = $.get('/data');
+
+            var tm = requests.done(function (result)
+            {
+                // Temperature
+                var seriesTemperature = chartTemperatue.series[0],
+                    shiftTemperature = seriesTemperature.data.length > 20;
+
+                // Humidity
+                var seriesHumidity = chartHumidity.series[0],
+                    shiftHumidity = seriesTemperature.data.length > 20;
+
+                // Add the Point
+                // Time Temperature\
+                var data1 = [];
+                data1.push(result[0]);//time
+                data1.push(result[1]);//temprature
+
+
+                // Add the Point
+                // Time Humidity
+                var data2 = [];
+                data2.push(result[0]);//time
+                data2.push(result[2]);//humidity
+
+
+                chartTemperatue.series[0].addPoint(data1, true, shiftTemperature);
+                chartHumidity.series[0].addPoint(data2, true, shiftHumidity);
+                $(".sensor1").text("");
+                $(".sensor1").text("Positive Tweets: " +  result[3]);
+		
+                $(".sensor2").text("");
+                $(".sensor2").text("Negative Tweets: " +  result[4] );
+
+                $(".sensor4").text("");
+                $(".sensor4").text("Total Tweets: " +  result[6] );
+
+                $(".sensor5").text("");
+                $(".sensor5").text("Neutral Tweets: " +  result[5] );
+
+
+		
+                // call it again after one second
+                setTimeout(requestData, 2000);
+
+            });
+        }
+
+        $(document).ready(function()
+        {
+            // --------------Chart 1 ----------------------------
+            chartTemperatue = new Highcharts.Chart({
+                chart:
+                    {
+                    renderTo: 'data-temperature',
+                    defaultSeriesType: 'area',
+                    events: {
+                        load: requestData
+                            }
+                    },
+                title:
+                    {
+                    text: 'Positive'
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 150,
+                    maxZoom: 20 * 1000
+                        },
+                yAxis: {
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    title: {
+                        text: 'Value',
+                        margin: 80
+                            }
+                         },
+                series: [{
+                    color : '#c23d23',
+                    lineColor: '#303030',
+                    name: 'Positive Tweets',
+                    data: []
+                }]
+            });
+            // --------------Chart 1 Ends - -----------------
+
+            chartHumidity = new Highcharts.Chart({
+                chart:
+                    {
+                        renderTo: 'data-humidity',
+                        defaultSeriesType: 'area',
+                        events: {
+                            load: requestData
+                        }
+                    },
+                title:
+                    {
+                        text: 'Negative'
+                    },
+                xAxis: {
+                    type: 'datetime',
+                    tickPixelInterval: 150,
+                    maxZoom: 20 * 1000
+                },
+                yAxis: {
+                    minPadding: 0.2,
+                    maxPadding: 0.2,
+                    title: {
+                        text: 'Value',
+                        margin: 80
+                    }
+                },
+                series: [{
+                    lineColor: '#1d82b8',
+                    name: 'Negative Tweets',
+                    data: []
+                }]
+            });
+        });
+
+        $(document).ready(function(){
+            var chart = new CanvasJS.Chart("chartContainer", {
+            title: {
+                text: "TWEET SENTIMENT ANALYSIS"
+            },
+            axisY: {
+            title: "No. of Tweets",
+            suffix: " Tweets"
+            },
+            data: [{
+            type: "column", 
+            yValueFormatString: "#,### Tweets",
+            indexLabel: "{y}",
+            dataPoints: [
+                { label: "Positive Tweets", y: 0 },
+                { label: "Negative Tweets", y: 0 },
+                { label: "Neutral Tweets", y: 0 }
+                ]
+            }]
+        });
+
+       function updateChart() {
+
+        var requests = $.get('/data');
+        var tm = requests.done(function (result)
+        {
+            var boilerColor, yVal;
+            var dps = chart.options.data[0].dataPoints;
+            for (var i = 0; i < 3; i++) {
+                yVal = result[i+3];
+                if (i==0){
+                    boilerColor = "#84DE02";
+                    dps[i] = {label: "Positive Tweets" , y: yVal, color: boilerColor};
+                }
+                else if(i==1){
+                    boilerColor = "#E32636";
+                    dps[i] = {label: "Negative Tweets" , y: yVal, color: boilerColor};
+                }
+                else{
+                    boilerColor = "#FF8015";
+                    dps[i] = {label: "Neutral Tweets" , y: yVal, color: boilerColor};
+                }
+            }
+            chart.options.data[0].dataPoints = dps; 
+            chart.render();   
+        });
+    };
+    updateChart();
+    setInterval(function() {updateChart()}, 500);
+    });
+</script>
+
+<div id="chartContainer" style="height: 600px; width: 80"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+
+<script>
+window.onload = function () {
+
+var dataPoints1 = [];
+var dataPoints2 = [];
+var dataPoints3 = [];
+
+var chart = new CanvasJS.Chart("chartContainer2", {
+    zoomEnabled: true,
+    title: {
+        text: "TWEET SENTIMENT ANALYSIS"
+    },
+    axisX: {
+        title: "chart updates every 3 secs"
+    },
+    axisY:{
+        suffix: " tweets",
+        includeZero: false
+    }, 
+    toolTip: {
+        shared: true
+    },
+    legend: {
+        cursor:"pointer",
+        verticalAlign: "top",
+        fontSize: 22,
+        fontColor: "dimGrey",
+        itemclick : toggleDataSeries
+    },
+    data: [{ 
+        type: "line",
+        xValueType: "dateTime",
+        yValueFormatString: "$####.00",
+        xValueFormatString: "hh:mm:ss TT",
+        showInLegend: true,
+        name: "Positive Tweets",
+        dataPoints: dataPoints1
+        },
+        {               
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "$####.00",
+            showInLegend: true,
+            name: "Negative Tweets" ,
+            dataPoints: dataPoints2
+    },
+    {               
+            type: "line",
+            xValueType: "dateTime",
+            yValueFormatString: "$####.00",
+            showInLegend: true,
+            name: "Negative Tweets" ,
+            dataPoints: dataPoints3
+    }]
+});
+
+function toggleDataSeries(e) {
+    if (typeof(e.dataSeries.visible) === "undefined" || e.dataSeries.visible) {
+        e.dataSeries.visible = false;
+    }
+    else {
+        e.dataSeries.visible = true;
+    }
+    chart.render();
+}
+
+var updateInterval = 3000;
+// initial value
+var yValue1 = 0; 
+var yValue2 = 0;
+var yValue3 = 0;
+
+var time = new Date;
+// starting at 9.30 am
+time.setHours(9);
+time.setMinutes(30);
+time.setSeconds(00);
+time.setMilliseconds(00);
+
+function updateChart(count) {
+        count = count || 1;
+        var requests = $.get('/data');
+        var tm = requests.done(function (result)
+        {
+            for (var i = 0; i < count; i++) {
+                time.setTime(time.getTime()+ updateInterval);
+                yValue1 = result[3];
+                yValue2 = result[4];
+                yValue3 = result[5];
+
+                // pushing the new values
+                dataPoints1.push({
+                    x: time.getTime(),
+                    y: yValue1
+                });
+                dataPoints2.push({
+                    x: time.getTime(),
+                    y: yValue2
+                });
+                dataPoints3.push({
+                    x: time.getTime(),
+                    y: yValue3
+                });
+            }
+
+            // updating legend text with  updated with y Value 
+            chart.options.data[0].legendText = " Positive Tweets: " + yValue1;
+            chart.options.data[1].legendText = " Negative Tweets: " + yValue2;
+            chart.options.data[2].legendText = " Neutral Tweets: " + yValue3; 
+            chart.render();
+        });
+    }
+// generates first set of dataPoints 
+updateChart(100);   
+setInterval(function(){updateChart()}, updateInterval);
+
+}
+</script>
+<div id="chartContainer2" style="height: 600px; width: 100%;"></div>
+<script src="https://canvasjs.com/assets/script/canvasjs.min.js"></script>
+
+<script>
+    class Image{
+
+        constructor(imgUrl, size)
+        {
+            this.imgUrl=imgUrl;
+            this.size=size;
+        }
+
+        backgroundImage()
+        {
+            console.log("inside function ")
+            // Select the Image
+            var img = document.querySelector(".jumbotron");
+
+            // create Css Text
+            var text = "margin:auto;"+
+                "background-image: url("+this.imgUrl+");" +
+                "background-size:cover;"+
+                "opacity:1;"+
+                "background-blend-mode: darken;"+
+                "height: "+ this.size + "vh;";
+
+            img.style.cssText =  text;
+        }
+
+        centerTitle()
+        {
+            /*
+                Center the Title
+             */
+            var t1 = document.querySelector("#title");
+            t1.classList.add("text-white");
+            t1.classList.add("text-center");
+            t1.classList.add("display-3");
+        }
+    }
+    const imgUrl = 'https://media3.giphy.com/media/26tn33aiTi1jkl6H6/giphy.gif'
+    const size = "50";
+    var obj = new Image(imgUrl, size);
+    obj.backgroundImage();
+    obj.centerTitle();
+    </script>
+</body>
+
+
+</html>
+
